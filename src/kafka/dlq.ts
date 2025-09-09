@@ -1,24 +1,7 @@
 import { logger } from '@adapters';
+import { KAFKA_DLQ_TOPIC, KAFKA_RETRY_TOPIC } from '@config';
+import type { DLQMessage, RetryableMessage } from '@interfaces';
 import type { Kafka, Producer } from 'kafkajs';
-
-export interface RetryableMessage {
-  originalMessage: any;
-  topic: string;
-  partition: number;
-  offset: string;
-  retryCount: number;
-  firstAttemptTimestamp: number;
-  lastAttemptTimestamp: number;
-  error?: string;
-}
-
-export interface DLQMessage extends RetryableMessage {
-  finalError: string;
-  dlqTimestamp: number;
-}
-
-const KAFKA_DLQ_TOPIC = 'evse-messages-dlq';
-const KAFKA_RETRY_TOPIC = 'evse-messages-retry';
 
 export class DLQService {
   private readonly producer: Producer;
@@ -37,9 +20,6 @@ export class DLQService {
     logger.info('🔌 DLQ Service disconnected');
   }
 
-  /**
-   * Send message to retry topic with incremented retry count
-   */
   async sendToRetry(
     originalMessage: unknown,
     topic: string,
@@ -75,24 +55,15 @@ export class DLQService {
         ],
       });
 
-      console.log(`📤 Message sent to retry topic. Retry count: ${retryCount + 1}`, {
-        originalTopic: topic,
-        partition,
-        offset,
-      });
+      logger.debug(
+        { originalTopic: topic, partition, offset },
+        `📤 Message sent to retry topic. Retry count: ${retryCount + 1}`,
+      );
     } catch (err) {
-      console.log(`❌ Failed to send message to retry topic: ${(err as Error).message}`, {
-        originalTopic: topic,
-        partition,
-        offset,
-      });
-      throw err;
+      logger.error({ err, originalTopic: topic, partition, offset }, `❌ Failed to send message to retry topic`);
     }
   }
 
-  /**
-   * Send message to Dead Letter Queue
-   */
   async sendToDLQ(retryableMessage: RetryableMessage, finalError: string): Promise<void> {
     const dlqMessage: DLQMessage = {
       ...retryableMessage,
@@ -117,19 +88,17 @@ export class DLQService {
         ],
       });
 
-      console.log(`💀 Message sent to DLQ after ${retryableMessage.retryCount} retries`, {
-        originalTopic: retryableMessage.topic,
-        partition: retryableMessage.partition,
-        offset: retryableMessage.offset,
-        finalError,
-      });
+      logger.debug(
+        {
+          originalTopic: retryableMessage.topic,
+          partition: retryableMessage.partition,
+          offset: retryableMessage.offset,
+          finalError,
+        },
+        `💀 Message sent to DLQ after ${retryableMessage.retryCount} retries`,
+      );
     } catch (err) {
-      console.log(`❌ Failed to send message to DLQ: ${(err as Error).message}`, {
-        originalTopic: retryableMessage.topic,
-        partition: retryableMessage.partition,
-        offset: retryableMessage.offset,
-      });
-      throw err;
+      logger.error(err, '❌ Failed to send message to DLQ');
     }
   }
 }
