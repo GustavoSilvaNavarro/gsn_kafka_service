@@ -1,1 +1,1 @@
-export type { OcppMessagesEvent } from './evseMsgs.interfaces.';
+export type { DLQMessage, OcppMessagesEvent, RetryableMessage } from './evseMsgs.interfaces.';

@@ -10,7 +10,7 @@ export const connectDb = async () => {
     logger.info('🔥 Prisma - Connection to db has been established successfully.');
     return prisma;
   } catch (err) {
-    logger.error(`Connection to db failed => ${(err as Error).message ?? 'DB failure'}`);
+    logger.error(err, 'Connection to db failed');
     throw err;
   }
 };

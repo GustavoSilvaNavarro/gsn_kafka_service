@@ -20,20 +20,12 @@ void (async () => {
 
   logger.info(`${NAME} Service started and running`);
 
-  // rbtmqc.on('error', (err) => {
-  //   console.log('RabbitMQ connection error', err);
-  // });
-
-  // rbtmqc.on('connection', () => {
-  //   console.log('🔥 Connection successfully (re)established');
-  // });
-
   onExit(() => {
     logger.error(`${NAME} Service is shutting down, closing connections...`);
     closeConnections({ db, kafkaConn })
       .then(() => process.exit(1))
       .catch((err) => {
-        logger.error(`😭 Error closing connections => ${err}`);
+        logger.error(err, '😭 Error closing connections');
         process.exit(1);
       });
   });

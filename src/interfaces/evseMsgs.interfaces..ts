@@ -12,3 +12,20 @@ export type OcppMessagesEvent = OcppBasicEvent & {
   acg: string;
   acs: string;
 };
+
+// ? Kafka retries
+export type RetryableMessage = {
+  originalMessage: any;
+  topic: string;
+  partition: number;
+  offset: string;
+  retryCount: number;
+  firstAttemptTimestamp: number;
+  lastAttemptTimestamp: number;
+  error?: string;
+};
+
+export type DLQMessage = RetryableMessage & {
+  finalError: string;
+  dlqTimestamp: number;
+};

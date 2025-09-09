@@ -36,8 +36,8 @@ export const startServer = async () => {
 
     await fastify.listen({ port: PORT });
     fastify.log.info(`🚀 Push Service is running, listening on ${PORT}`);
-  } catch (_err) {
-    fastify.log.error('Error starting fastify server');
+  } catch (err) {
+    fastify.log.error(err, 'Error starting fastify server');
     process.exit(1);
   }
 };

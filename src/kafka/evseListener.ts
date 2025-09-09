@@ -1,11 +1,11 @@
 import { logger } from '@adapters';
 import { ENVIRONMENT, KAFKA_GROUP_ID, KAFKA_RETRY_TOPIC, KAFKA_TOPIC } from '@config';
-import type { OcppMessagesEvent } from '@interfaces';
+import type { OcppMessagesEvent, RetryableMessage } from '@interfaces';
 import { insertNewMsg } from '@services';
 import { sleep } from '@utils';
 import type { Consumer, EachMessagePayload, Kafka } from 'kafkajs';
 
-import type { DLQService, RetryableMessage } from './dlq';
+import type { DLQService } from './dlq';
 
 const MAX_RETRIES = 3;
 
@@ -52,10 +52,7 @@ export class EvseKafkaListener {
         fromBeginning: !['prd', 'stg', 'dev'].includes(ENVIRONMENT), // Set to false to only get new messages
       });
 
-      await this.retryConsumer.subscribe({
-        topic: KAFKA_RETRY_TOPIC,
-        fromBeginning: false,
-      });
+      await this.retryConsumer.subscribe({ topic: KAFKA_RETRY_TOPIC, fromBeginning: false });
 
       // Start consuming messages
       await this.consumer.run({
@@ -70,7 +67,7 @@ export class EvseKafkaListener {
         },
       });
     } catch (err) {
-      logger.error(`❌ Error starting consumer: Error => ${(err as Error)?.message ?? 'Error'}`);
+      logger.error(err, '❌ Error starting consumer');
     }
   }
 
@@ -81,16 +78,12 @@ export class EvseKafkaListener {
     try {
       const msg = JSON.parse(stringifiedMsg) as OcppMessagesEvent;
       const newMsg = await insertNewMsg(msg, topic);
-      console.log(newMsg);
+      logger.debug(newMsg);
     } catch (err) {
-      const error = err as Error;
-      console.log(`⚠️ Failed to process message, sending to retry: ${error?.message ?? 'Unknown Error'}`, {
-        topic,
-        partition,
-        offset: message.offset,
-      });
+      const error = (err as Error)?.message ?? 'Unexpected error';
+      logger.error(err, '⚠️ Failed to process message, sending to retry!');
 
-      await this.dlq.sendToRetry(JSON.parse(stringifiedMsg), topic, partition, message.offset, 0, error.message);
+      await this.dlq.sendToRetry(JSON.parse(stringifiedMsg), topic, partition, message.offset, 0, error);
     }
   }
 
@@ -101,40 +94,23 @@ export class EvseKafkaListener {
 
     try {
       const retryMessage = JSON.parse(stringifiedMsg) as RetryableMessage;
-
-      // Add exponential backoff delay
       await sleep(500);
 
       // Try to process the original message
       const newMsg = await insertNewMsg(retryMessage.originalMessage as OcppMessagesEvent, topic);
-      console.log(newMsg);
+      logger.debug(newMsg);
 
-      console.log(`✅ Successfully processed message on retry ${retryMessage.retryCount}`, {
-        originalTopic: retryMessage.topic,
-        partition: retryMessage.partition,
-        offset: retryMessage.offset,
-      });
+      logger.info(`✅ Successfully processed message on retry ${retryMessage.retryCount}`);
     } catch (err) {
-      const error = err as Error;
+      const errorMsg = (err as Error)?.message ?? 'Unexpected error';
       const retryMessage = JSON.parse(stringifiedMsg) as RetryableMessage;
 
       if (retryMessage.retryCount >= MAX_RETRIES) {
-        // Send to DLQ
-        console.log(`💀 Max retries exceeded, sending to DLQ`, {
-          originalTopic: retryMessage.topic,
-          partition: retryMessage.partition,
-          offset: retryMessage.offset,
-          retryCount: retryMessage.retryCount,
-        });
-
-        await this.dlq.sendToDLQ(retryMessage, error.message);
+        logger.warn(`💀 Max retries exceeded, sending to DLQ`);
+        await this.dlq.sendToDLQ(retryMessage, errorMsg);
       } else {
         // Retry again
-        console.log(`🔄 Retrying message (attempt ${retryMessage.retryCount + 1})`, {
-          originalTopic: retryMessage.topic,
-          partition: retryMessage.partition,
-          offset: retryMessage.offset,
-        });
+        logger.warn(`🔄 Retrying message (attempt ${retryMessage.retryCount + 1})`);
 
         await this.dlq.sendToRetry(
           retryMessage.originalMessage,
@@ -142,7 +118,7 @@ export class EvseKafkaListener {
           retryMessage.partition,
           offset,
           retryMessage.retryCount,
-          error.message,
+          errorMsg,
         );
       }
     }
