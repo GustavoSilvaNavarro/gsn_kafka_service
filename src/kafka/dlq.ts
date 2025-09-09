@@ -1,4 +1,5 @@
 import { logger } from '@adapters';
+import { KAFKA_DLQ_TOPIC, KAFKA_RETRY_TOPIC } from '@config';
 import type { Kafka, Producer } from 'kafkajs';
 
 export interface RetryableMessage {
@@ -16,9 +17,6 @@ export interface DLQMessage extends RetryableMessage {
   finalError: string;
   dlqTimestamp: number;
 }
-
-const KAFKA_DLQ_TOPIC = 'evse-messages-dlq';
-const KAFKA_RETRY_TOPIC = 'evse-messages-retry';
 
 export class DLQService {
   private readonly producer: Producer;
@@ -86,7 +84,6 @@ export class DLQService {
         partition,
         offset,
       });
-      throw err;
     }
   }
 
@@ -129,7 +126,6 @@ export class DLQService {
         partition: retryableMessage.partition,
         offset: retryableMessage.offset,
       });
-      throw err;
     }
   }
 }
