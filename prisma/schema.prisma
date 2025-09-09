@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ! EVSE model
+model Messages {
+  id        BigInt   @id @default(autoincrement())
+  pfid      String
+  siteId    String   @map("site_id") @db.VarChar(20)
+  acnId     String   @map("acn_id") @db.VarChar(20)
+  accId     String   @map("acc_id") @db.VarChar(20)
+  acgId     String   @map("acg_id") @db.VarChar(20)
+  acsId     String   @map("acs_id") @db.VarChar(20)
+  payload   Json     @db.JsonB
+  cbid      String?
+  subject   String
+  action    String?
+  timestamp DateTime
+  uniqueId  String?  @map("unique_id")
+  source    String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([pfid])
+  @@index([siteId])
+  @@index([action])
+  @@index([uniqueId])
+  @@map("messages") // This is the key: maps the model 'User' to the table 'user'
+}

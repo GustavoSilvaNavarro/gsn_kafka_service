@@ -1,0 +1,15 @@
+.git/*
+.github/*
+.tmp/*
+.gitignore
+node_modules/*
+env*
+package.json
+package-lock.json
+README.md
+jest.config.js
+babel.config.js
+deploy/*
+assets/*
+dist/*
+prisma/*

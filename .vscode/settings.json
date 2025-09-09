@@ -1,0 +1,24 @@
+{
+  "cSpell.words": [
+    "autoincrement",
+    "BOOTSTRAPSERVERS",
+    "cbid",
+    "codegen",
+    "confluentinc",
+    "dotenvx",
+    "evse",
+    "evses",
+    "healthcheck",
+    "healthz",
+    "isready",
+    "kafkajs",
+    "measurand",
+    "Ocpp",
+    "pfid",
+    "provectuslabs",
+    "rabbitmq",
+    "rbtconn",
+    "rbtmqc",
+    "Retryable"
+  ]
+}
