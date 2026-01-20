@@ -2,8 +2,11 @@
   "cSpell.words": [
     "autoincrement",
     "BOOTSTRAPSERVERS",
+    "BUILDKIT",
+    "buildx",
     "cbid",
     "codegen",
+    "commitready",
     "confluentinc",
     "dotenvx",
     "evse",
@@ -12,13 +15,18 @@
     "healthz",
     "isready",
     "kafkajs",
+    "KUBEVAL",
     "measurand",
     "Ocpp",
     "pfid",
+    "pkey",
     "provectuslabs",
+    "prready",
     "rabbitmq",
     "rbtconn",
     "rbtmqc",
-    "Retryable"
+    "Retryable",
+    "timescaledb",
+    "typeorm"
   ]
 }

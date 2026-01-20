@@ -51,6 +51,6 @@
       { "transform": "typescript-transform-paths", "afterDeclarations": true }
     ]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "jest.setup.ts", "jest.config.ts", "pubTests"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "jest.setup.ts", "jest.config.ts", "pubTests", "prisma.config.ts"],
   "exclude": ["node_modules"]
 }

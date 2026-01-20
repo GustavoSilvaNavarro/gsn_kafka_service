@@ -15,6 +15,11 @@ prisma-init:
 	@echo "🔥 Initiating prisma..."
 	npx prisma init
 
+# NOTE: This is fundamental to create client
+prisma-generate:
+	@echo "💪 Generating client..."
+	npx prisma generate
+
 prisma-apply-migration:
 	npm run migration:up
 
@@ -41,11 +46,11 @@ create-migration:
 # Run Local DB
 local-db:
 	docker run -d --name timescale_db -p 5432:5432 -e POSTGRES_PASSWORD=password123 -e POSTGRES_USER=postgres \
-	-e POSTGRES_DB=data_manager timescale/timescaledb-ha:pg14-latest
+	-e POSTGRES_DB=data_manager timescale/timescaledb-ha:pg17-latest
 
 test-db:
 	docker run -d --name timescale_test_db -p 5432:5432 -e POSTGRES_PASSWORD=password123 -e POSTGRES_USER=postgres \
-  -e POSTGRES_DB=test_data_manager timescale/timescaledb-ha:pg14-latest
+  -e POSTGRES_DB=test_data_manager timescale/timescaledb-ha:pg17-latest
 
 # Pipeline commands
 setup:

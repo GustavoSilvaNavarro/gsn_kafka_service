@@ -12,7 +12,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ! EVSE model
@@ -40,5 +39,5 @@ model Messages {
   @@index([siteId])
   @@index([action])
   @@index([uniqueId])
-  @@map("messages") // This is the key: maps the model 'User' to the table 'user'
+  @@map("messages")
 }

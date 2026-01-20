@@ -19,3 +19,6 @@ export const KAFKA_TOPIC = process.env.KAFKA_TOPIC ?? 'evses';
 export const KAFKA_CLIENT_ID = process.env.KAFKA_CLIENT_ID ?? 'gsn-kafka-consumer_service';
 export const KAFKA_DLQ_TOPIC = process.env.KAFKA_DLQ_TOPIC ?? 'evse-messages-dlq';
 export const KAFKA_RETRY_TOPIC = process.env.KAFKA_RETRY_TOPIC ?? 'evse-messages-retry';
+
+// ! DB
+export const DB_URL = process.env.DATABASE_URL;

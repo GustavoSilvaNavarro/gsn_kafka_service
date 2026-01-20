@@ -17,9 +17,7 @@ const fastify = Fastify({
 export const serverSetup = async () => {
   fastify.register(compress);
   fastify.register(swagger, { mode: 'static', specification: { document: swaggerDefinition } });
-  fastify.register(swaggerUI, {
-    routePrefix: '/docs',
-  });
+  fastify.register(swaggerUI, { routePrefix: '/docs' });
 
   // custom plugins
   fastify.register(customHeadersPlugin);
