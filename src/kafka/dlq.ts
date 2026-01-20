@@ -1,13 +1,15 @@
 import { logger } from '@adapters';
 import { KAFKA_DLQ_TOPIC, KAFKA_RETRY_TOPIC } from '@config';
 import type { DLQMessage, RetryableMessage } from '@interfaces';
-import type { Kafka, Producer } from 'kafkajs';
+import { type Kafka, Partitioners, type Producer } from 'kafkajs';
 
 export class DLQService {
   private readonly producer: Producer;
 
   constructor(kafkaConn: Kafka) {
-    this.producer = kafkaConn.producer();
+    this.producer = kafkaConn.producer({
+      createPartitioner: Partitioners.DefaultPartitioner,
+    });
   }
 
   async connect(): Promise<void> {

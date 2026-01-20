@@ -13,13 +13,19 @@ type Connections = {
 
 let kafka: Kafka;
 
+// TODO: try a migration to confluent library
 export const connectToKafka = () => {
   kafka = new Kafka({
     clientId: KAFKA_CLIENT_ID,
     brokers: [KAFKA_URL], // Your Kafka broker
+    connectionTimeout: 30000,
+    requestTimeout: 30000,
     retry: {
       initialRetryTime: 100,
       retries: 8,
+      maxRetryTime: 30000,
+      multiplier: 2,
+      factor: 0.2,
     },
   });
 

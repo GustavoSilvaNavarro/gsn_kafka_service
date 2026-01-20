@@ -18,6 +18,8 @@
     "KUBEVAL",
     "measurand",
     "Ocpp",
+    "Partitioner",
+    "Partitioners",
     "pfid",
     "pkey",
     "provectuslabs",
