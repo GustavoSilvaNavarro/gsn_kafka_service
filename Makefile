@@ -120,7 +120,7 @@ down:
 	docker compose -f ./docker-compose.yml -f ./docker-compose.inf.yml down --remove-orphans
 
 down-rm:
-	docker compose -f ./docker-compose.yml -f ./docker-compose.inf.yml down --remove-orphans --rmi all --volumes
+	docker compose -f ./docker-compose.inf.yml down --remove-orphans --rmi all --volumes
 
 downup: down up
 
